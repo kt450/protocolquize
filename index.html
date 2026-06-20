@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ネットワークプロトコル クイズ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            max-width: 600px;
+            width: 100%;
+            padding: 1.25rem;
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+            }
+            
+            .container {
+                border-radius: 8px;
+                padding: 1rem;
+            }
+        }
+        
+        .header {
+            margin-bottom: 1.25rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 0.25rem;
+            line-height: 1.2;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 0.875rem;
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.25rem;
+            }
+        }
+        
+        .selector-group {
+            margin-bottom: 1rem;
+        }
+        
+        .selector-group label {
+            display: block;
+            font-size: 0.875rem;
+            color: #666;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            color: #333;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        select:hover {
+            border-color: #667eea;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .quiz-card {
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 480px) {
+            .quiz-card {
+                padding: 1rem;
+            }
+        }
+        
+        .question-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+        
+        .question-category {
+            font-size: 0.75rem;
+            color: #999;
+            margin-bottom: 0.75rem;
+            display: inline-block;
+            background: #e8e8f0;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        
+        .answer-container {
+            margin-bottom: 1rem;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            transition: border-color 0.2s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            background: white;
+            color: #333;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        button:hover {
+            background: #f0f0f0;
+            border-color: #667eea;
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .button-group button {
+            margin-bottom: 0;
+        }
+        
+        .feedback {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            display: none;
+            line-height: 1.5;
+        }
+        
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .stats {
+            background: #f0f0f0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        
+        @media (max-width: 480px) {
+            .stats {
+                padding: 0.875rem;
+            }
+        }
+        
+        .stats-title {
+            font-size: 0.875rem;
+            color: #666;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: #999;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .accuracy {
+            font-size: 0.75rem;
+            color: #999;
+            margin-top: 0.75rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ネットワークプロトコル クイズ</h1>
+            <p>各レイヤーのプロトコルを学習しよう</p>
+        </div>
+        
+        <div style="margin-bottom: 1rem; display: flex; gap: 8px; flex-wrap: wrap;">
+            <button id="writingModeBtn" style="flex: 1; min-width: 140px; padding: 10px 12px; background: #667eea; color: white; border: 1px solid #667eea; border-radius: 6px; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s;">✍️ 記述式</button>
+            <button id="multipleChoiceModeBtn" style="flex: 1; min-width: 140px; padding: 10px 12px; background: white; color: #667eea; border: 1px solid #667eea; border-radius: 6px; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s;">◯ 4択形式</button>
+        </div>
+        
+        <div class="selector-group">
+            <label for="layerSelect">出題範囲を選択</label>
+            <select id="layerSelect">
+                <option value="all">すべてのカテゴリー</option>
+                <option value="physical">物理層 (Layer 1)</option>
+                <option value="datalink">データリンク層 (Layer 2)</option>
+                <option value="network">ネットワーク層 (Layer 3)</option>
+                <option value="transport">トランスポート層 (Layer 4)</option>
+                <option value="application">アプリケーション層 (Layer 5-7)</option>
+                <option value="routing">ルーティング層</option>
+                <option value="redundancy">冗長化プロトコル</option>
+                <option value="vpn">VPN・トンネリング</option>
+                <option value="security">セキュリティプロトコル</option>
+                <option value="iot">IoT・特殊プロトコル</option>
+            </select>
+        </div>
+        
+        <div class="quiz-card">
+            <div class="question-title" id="questionText">問題を読み込み中...</div>
+            <div class="question-category" id="questionCategory"></div>
+            <div class="hints" id="hints" style="margin-bottom: 1rem; padding: 0.75rem; background: #f0f0f8; border-left: 3px solid #667eea; border-radius: 4px; font-size: 0.875rem;">
+                <div style="color: #666; margin-bottom: 0.5rem;">💡 ヒント：</div>
+                <div id="hintText" style="color: #333; font-weight: 500;"></div>
+            </div>
+            
+            <!-- 記述式 -->
+            <div id="writingMode">
+                <div class="answer-container">
+                    <input type="text" id="answerInput" placeholder="答えを入力してください" />
+                    <button id="submitBtn" onclick="checkAnswer()">回答する</button>
+                </div>
+                
+                <div class="feedback" id="feedback">
+                    <span id="feedbackText"></span>
+                </div>
+            </div>
+            
+            <!-- 4択形式 -->
+            <div id="multipleChoiceMode" style="display: none;">
+                <div class="answer-container" style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+                    <button class="choice-btn" onclick="checkMultipleChoice(0)" style="padding: 12px; text-align: left; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 0.95rem;">
+                        <span style="margin-right: 8px; font-weight: 600; color: #667eea;">①</span><span id="choice0"></span>
+                    </button>
+                    <button class="choice-btn" onclick="checkMultipleChoice(1)" style="padding: 12px; text-align: left; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 0.95rem;">
+                        <span style="margin-right: 8px; font-weight: 600; color: #667eea;">②</span><span id="choice1"></span>
+                    </button>
+                    <button class="choice-btn" onclick="checkMultipleChoice(2)" style="padding: 12px; text-align: left; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 0.95rem;">
+                        <span style="margin-right: 8px; font-weight: 600; color: #667eea;">③</span><span id="choice2"></span>
+                    </button>
+                    <button class="choice-btn" onclick="checkMultipleChoice(3)" style="padding: 12px; text-align: left; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 0.95rem;">
+                        <span style="margin-right: 8px; font-weight: 600; color: #667eea;">④</span><span id="choice3"></span>
+                    </button>
+                </div>
+                
+                <div class="feedback" id="feedbackMultiple" style="display: none; margin-top: 1rem;">
+                    <span id="feedbackMultipleText"></span>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button onclick="loadNextQuestion()">次の問題</button>
+                <button onclick="skipQuestion()">スキップ</button>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stats-title">統計</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-label">正解数</div>
+                    <div class="stat-value" id="correctCount">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">出題数</div>
+                    <div class="stat-value" id="totalCount">0</div>
+                </div>
+            </div>
+            <div class="accuracy" id="accuracy"></div>
+        </div>
+    </div>
+    
+    <script>
+        const quizData = {
+            physical: [
+                { q: "複数の物理回線を束ねる制御プロトコルで、IEEE 802.3adで定義されている。", hint: "リンク集約", rfc: "IEEE 802.3ad", a: ["lacp"], category: "物理層" },
+                { q: "複数の物理ポートを1つのグループにして、冗長性と帯域を確保する。", hint: "802.3ad", a: ["リンクアグリゲーション", "lacp"], category: "物理層" }
+            ],
+            datalink: [
+                { q: "IP アドレスからMACアドレス（物理アドレス）を解決するプロトコル。", hint: "Address Resolution", rfc: "RFC 826", a: ["arp"], category: "データリンク層" },
+                { q: "自分自身のIPアドレスを問い合わせるARP。IP重複検知やVRRP切り替わり周知に使う。", hint: "Gratuitous", rfc: "RFC 5227", a: ["garp"], category: "データリンク層" },
+                { q: "複数のスイッチで構成したネットワークのループを検出・防止するプロトコル。", hint: "ツリー構造", rfc: "IEEE 802.1D", a: ["stp"], category: "データリンク層" },
+                { q: "物理的な冗長構成でループ検出と経路冗長を行うレイヤー2プロトコル。", hint: "Spanning", a: ["スパニングツリー"], category: "データリンク層" },
+                { q: "VLANの設定情報をCisco スイッチ間で自動同期するプロトコル。意図しない全VLAN消失に注意。", hint: "VLAN Trunking", rfc: "Cisco独自", a: ["vtp"], category: "データリンク層" },
+                { q: "Cisco製スイッチ間でポートをトランクにするか自動交渉するプロトコル。", hint: "Dynamic Trunking", a: ["dtp"], category: "データリンク層" },
+                { q: "メーカーを問わず隣接する機器の情報を相互に通知・検出するプロトコル。", hint: "Link Layer Discovery", rfc: "IEEE 802.1AB", a: ["lldp"], category: "データリンク層" },
+                { q: "Cisco製機器同士で隣接情報を交換する独自プロトコル。", hint: "Cisco Discovery", a: ["cdp"], category: "データリンク層" }
+            ],
+            network: [
+                { q: "IP アドレス、サブネットマスク、GWなどをネットワーク内の端末に自動的に割り当てる。", hint: "Dynamic Host Configuration", rfc: "RFC 2131", a: ["dhcp"], category: "ネットワーク層" },
+                { q: "IP アドレス割り当ての際に DHCP サーバーとクライアント間で中継を行う。", hint: "DHCP Relay Agent", a: ["dhcpリレーエージェント"], category: "ネットワーク層" },
+                { q: "ドメイン名とIPアドレスを紐付ける名前解決システム。", hint: "Domain Name", rfc: "RFC 1035", a: ["dns"], category: "ネットワーク層" },
+                { q: "Ping や Traceroute で使用される、通信状態確認・エラー通知用プロトコル。", hint: "Internet Control Message", rfc: "RFC 792", a: ["icmp"], category: "ネットワーク層" },
+                { q: "IPアドレスからMACアドレスを解決するプロトコル。", hint: "Address Resolution", rfc: "RFC 826", a: ["arp"], category: "ネットワーク層" },
+                { q: "インターネット上のデータを宛先に届けるための基盤プロトコル。", hint: "Internet", rfc: "RFC 791", a: ["ip"], category: "ネットワーク層" },
+                { q: "IPパケット単位で暗号化・認証を行う VPN の基盤技術。", hint: "Security Architecture", rfc: "RFC 4301", a: ["ipsec"], category: "ネットワーク層" },
+                { q: "マルチキャストグループへの参加、離脱を管理するプロトコル。", hint: "Internet Group Management", rfc: "RFC 3376", a: ["igmp"], category: "ネットワーク層" }
+            ],
+            transport: [
+                { q: "確認応答を行いながら、データの到達と順序を保証する信頼性重視のプロトコル。", hint: "Transmission Control", rfc: "RFC 9293", a: ["tcp"], category: "トランスポート層" },
+                { q: "細かい確認手順を省き、速度とリアルタイム性を重視する通信プロトコル。", hint: "User Datagram", rfc: "RFC 768", a: ["udp"], category: "トランスポート層" },
+                { q: "Google発のUDPベース Webプロトコル。3WAYハンドシェイクを短縮して低遅延を実現。", hint: "Quick UDP Internet", rfc: "RFC 9000", a: ["quic"], category: "トランスポート層" },
+                { q: "ネットワーク経由でコマンド操作を暗号化して安全に行うプロトコル。", hint: "Secure Shell", rfc: "RFC 4253", a: ["ssh"], category: "トランスポート層" },
+                { q: "IP電話における発着信・切断などの呼制御を行うプロトコル。", hint: "Session Initiation", rfc: "RFC 3261", a: ["sip"], category: "トランスポート層" }
+            ],
+            application: [
+                { q: "IPアドレス、サブネットマスク、GWなどを自動的に割り当てる。標準ポートは UDP 67/68。", hint: "Dynamic Host", rfc: "RFC 2131", a: ["dhcp"], category: "アプリケーション層" },
+                { q: "メールの送信・サーバー間転送を行うためのプロトコル。標準ポートは TCP 25。", hint: "Simple Mail Transfer", rfc: "RFC 5321", a: ["smtp"], category: "アプリケーション層" },
+                { q: "メールソフトからサーバーへの送信（認証付き SMTP）。ポート 587。", hint: "Message Submission", rfc: "RFC 6409", a: ["submission"], category: "アプリケーション層" },
+                { q: "メールサーバーからメールを端末にダウンロードして管理する受信プロトコル。ポート 110。", hint: "Post Office Protocol", rfc: "RFC 1939", a: ["pop3", "pop"], category: "アプリケーション層" },
+                { q: "メールをサーバーに残して管理・閲覧する受信方式。複数端末での同期に有利。ポート 143。", hint: "Internet Message Access", rfc: "RFC 3501", a: ["imap"], category: "アプリケーション層" },
+                { q: "Webサイト閲覧の基本プロトコル。標準ポートは TCP 80。", hint: "HyperText Transfer", rfc: "RFC 9114", a: ["http"], category: "アプリケーション層" },
+                { q: "HTTP通信を SSL/TLSで暗号化したもの。標準ポートは TCP 443。", hint: "HTTP Secure", rfc: "RFC 2818", a: ["https"], category: "アプリケーション層" },
+                { q: "ファイル転送の標準プロトコル（暗号化なし）。ポート 20/21。", hint: "File Transfer", rfc: "RFC 959", a: ["ftp"], category: "アプリケーション層" },
+                { q: "FTP通信全体を SSL/TLSで暗号化したもの。ポート 990。", hint: "File Transfer over SSL", rfc: "RFC 4217", a: ["ftps"], category: "アプリケーション層" },
+                { q: "認証機能がない簡易的なファイル転送プロトコル。ルーター設定保存やネットワークブート用。ポート 69。", hint: "Trivial File Transfer", rfc: "RFC 1350", a: ["tftp"], category: "アプリケーション層" },
+                { q: "ドメイン名とIPアドレスを紐付ける名前解決システム。ポート 53。", hint: "Domain Name System", rfc: "RFC 1035", a: ["dns"], category: "アプリケーション層" },
+                { q: "ネットワーク機器の状態監視（トラフィック、CPU使用率など）や管理を行う。ポート 161/162。", hint: "Simple Network Management", rfc: "RFC 1157", a: ["snmp"], category: "アプリケーション層" },
+                { q: "ネットワーク上の機器の時刻を正確に同期させるプロトコル。ポート 123。", hint: "Network Time", rfc: "RFC 5905", a: ["ntp"], category: "アプリケーション層" },
+                { q: "サーバーやネットワーク機器のログをログ管理サーバーに転送する規格。ポート 514。", hint: "System Logging", rfc: "RFC 5424", a: ["syslog"], category: "アプリケーション層" },
+                { q: "ユーザー情報などを管理するディレクトリサービスへのアクセスプロトコル。ポート 389。", hint: "Lightweight Directory Access", rfc: "RFC 4511", a: ["ldap"], category: "アプリケーション層" },
+                { q: "ネットワーク接続時の認証・許可・課金（AAA）を一元管理するプロトコル。ポート 1812/1813。", hint: "Remote Authentication", rfc: "RFC 2865", a: ["radius"], category: "アプリケーション層" },
+                { q: "チケット方式を用いたネットワーク認証プロトコル。Active Directory標準。ポート 88。", hint: "Kerberos", rfc: "RFC 4120", a: ["kerberos"], category: "アプリケーション層" },
+                { q: "Windows標準の画面転送・遠隔操作プロトコル。ポート 3389。", hint: "Remote Desktop", a: ["rdp"], category: "アプリケーション層" },
+                { q: "暗号化されない遠隔操作プロトコル。パスワードが平文で流れるため、現在は SSH推奨。ポート 23。", hint: "Teletype Network", rfc: "RFC 854", a: ["telnet"], category: "アプリケーション層" },
+                { q: "IPネットワーク経由で SCSIコマンドを送り、ストレージを接続する。ポート 3260。", hint: "Internet Small Computer System", rfc: "RFC 3720", a: ["iscsi"], category: "アプリケーション層" },
+                { q: "Linux/UNIX標準のファイル共有プロトコル。ポート 2049。", hint: "Network File System", rfc: "RFC 7530", a: ["nfs"], category: "アプリケーション層" },
+                { q: "Windowsネットワークにおけるファイル共有やプリンタ共有の標準プロトコル。ポート 445。", hint: "Server Message Block", a: ["smb"], category: "アプリケーション層" },
+                { q: "音声や動画データをリアルタイムに転送するためのプロトコル。SIP等と組み合わせて使う。", hint: "Real-time Transport", rfc: "RFC 3550", a: ["rtp"], category: "アプリケーション層" }
+            ],
+            routing: [
+                { q: "小規模ネットワーク向けの距離ベクトル型ルーティング。ホップ数で経路を決める。ポート 520。", hint: "Routing Information", rfc: "RFC 2453", a: ["rip"], category: "ルーティング層" },
+                { q: "大規模ネットワーク向けのリンクステート型ルーティング。SPFアルゴリズムを使用。", hint: "Open Shortest Path", rfc: "RFC 2328", a: ["ospf"], category: "ルーティング層" },
+                { q: "Cisco独自の IGP。距離ベクトルとリンクステートの長所を持ち収束が速い。", hint: "Enhanced Interior Gateway", rfc: "RFC 7868", a: ["eigrp"], category: "ルーティング層" },
+                { q: "インターネット上の組織（AS）間で経路情報を交換する EGP。インターネットの基幹技術。ポート 179。", hint: "Border Gateway", rfc: "RFC 4271", a: ["bgp"], category: "ルーティング層" },
+                { q: "OSI環境での運用を前提に開発されたリンクステート型ルーティング。ISPや大規模 DCで再評価。", hint: "Intermediate System", rfc: "ISO 10589", a: ["isis", "is-is"], category: "ルーティング層" }
+            ],
+            redundancy: [
+                { q: "デフォルトゲートウェイを冗長化（二重化）するための標準プロトコル。", hint: "Virtual Router Redundancy", rfc: "RFC 5798", a: ["vrrp"], category: "冗長化" },
+                { q: "Cisco独自のルーター冗長化プロトコル。VRRPの元ネタ。ポート 1985。", hint: "Hot Standby Router", rfc: "RFC 2281", a: ["hsrp"], category: "冗長化" },
+                { q: "Cisco独自のルーター冗長化プロトコル。複数ルーターでアクティブに負荷分散できる。ポート 3222。", hint: "Gateway Load Balancing", a: ["glbp"], category: "冗長化" },
+                { q: "VRRPの特許回避のために開発された、オープンソース版のルーター冗長化プロトコル。", hint: "Common Address Redundancy", a: ["carp"], category: "冗長化" }
+            ],
+            vpn: [
+                { q: "パケットにラベルを付けて高速転送する技術。通信キャリアの VPN 網やバックボーンで利用。", hint: "Multi-Protocol Label Switching", rfc: "RFC 3031", a: ["mpls"], category: "VPN" },
+                { q: "IPパケット単位で暗号化・認証を行う VPN の基盤技術。IKE, ESP, AHなどで構成。", hint: "Security Architecture for IP", rfc: "RFC 4301", a: ["ipsec"], category: "VPN" },
+                { q: "パケットの送信元認証と改ざん防止のみを行い、暗号化はしない IPsec要素。", hint: "Authentication Header", rfc: "RFC 4302", a: ["ah"], category: "VPN" },
+                { q: "IPsec のパケット暗号化部分。AHと違い中身を隠せる。", hint: "Encapsulating Security Payload", rfc: "RFC 4303", a: ["esp"], category: "VPN" },
+                { q: "L3ネットワーク上に論理的な L2網を構築するデータセンター向けネットワーク仮想化技術。ポート 4789。", hint: "Virtual Extensible LAN", rfc: "RFC 7348", a: ["vxlan"], category: "VPN" },
+                { q: "データセンター間を L2で接続（延伸）する Cisco独自技術。DCIで使用。", hint: "Overlay Transport Virtualization", a: ["otv"], category: "VPN" },
+                { q: "あるプロトコルのパケットを別のプロトコルの中に包んで運ぶ汎用トンネリング技術。", hint: "Generic Routing Encapsulation", rfc: "RFC 2784", a: ["gre"], category: "VPN" }
+            ],
+            security: [
+                { q: "通信の暗号化、改ざん検知、通信相手の認証を行うプロトコル。", hint: "Secure Sockets Layer / TLS", rfc: "RFC 8446", a: ["ssl", "tls"], category: "セキュリティ" },
+                { q: "PPP接続時の認証プロトコル。パスワードをハッシュ化して送るため PAP より安全。", hint: "Challenge Handshake Authentication", rfc: "RFC 1994", a: ["chap"], category: "セキュリティ" },
+                { q: "PPP接続時の認証プロトコル。パスワードを平文で流して認証するので危険。", hint: "Password Authentication", rfc: "RFC 1334", a: ["pap"], category: "セキュリティ" },
+                { q: "認証フレームワーク。Wi-Fi の WPA2エンタープライズ（802.1X）などで使われる。", hint: "Extensible Authentication", rfc: "RFC 3748", a: ["eap"], category: "セキュリティ" },
+                { q: "イーサネット上で PPP認証を行う。日本の家庭用インターネット接続で一般的。", hint: "Point-to-Point Protocol over Ethernet", rfc: "RFC 2516", a: ["pppoe"], category: "セキュリティ" },
+                { q: "DNSの通信を HTTPSの中に隠蔽して暗号化する技術。覗き見防止。", hint: "DNS over HTTPS", rfc: "RFC 8484", a: ["doh"], category: "セキュリティ" }
+            ],
+            iot: [
+                { q: "プロオーディオ機器間で、低遅延かつ高音質な音声を伝送するネットワーク規格。", hint: "Dante", a: ["dante"], category: "IoT・特殊" },
+                { q: "工場のロボット制御などで使われる超低遅延・リアルタイム通信の産業用イーサネット。", hint: "Ethernet for Control Automation", rfc: "IEC 61158", a: ["ethercat"], category: "IoT・特殊" },
+                { q: "工場にあるような産業用機械（PLC等）の間でデータの送受信を行うプロトコル。ポート 502。", hint: "Modbus", rfc: "IEC 61158", a: ["modbus"], category: "IoT・特殊" },
+                { q: "IoT向けの軽量メッセージプロトコル。Pub/Subモデルで動作。ポート 1883。", hint: "Message Queuing Telemetry Transport", rfc: "ISO/IEC 20922", a: ["mqtt"], category: "IoT・特殊" },
+                { q: "IoT機器向けの軽量 Webプロトコル。UDPベースで HTTPのような通信を行う。ポート 5683。", hint: "Constrained Application", rfc: "RFC 7252", a: ["coap"], category: "IoT・特殊" },
+                { q: "無線端末同士がバケツリレー式に通信するメッシュネットワーク用のルーティング。", hint: "Better Approach To Mobile", a: ["batman"], category: "IoT・特殊" }
+            ]
+        };
+        
+        let currentLayer = "all";
+        let currentIndex = 0;
+        let currentQuestions = [];
+        let stats = { correct: 0, total: 0 };
+        let answered = false;
+        let quizMode = "writing"; // "writing" または "multipleChoice"
+        let currentChoices = [];
+        let correctAnswerIndex = -1;
+        
+        function getAllQuestions() {
+            if (currentLayer === "all") {
+                return [
+                    ...quizData.physical,
+                    ...quizData.datalink,
+                    ...quizData.network,
+                    ...quizData.transport,
+                    ...quizData.application,
+                    ...quizData.routing,
+                    ...quizData.redundancy,
+                    ...quizData.vpn,
+                    ...quizData.security,
+                    ...quizData.iot
+                ].sort(() => Math.random() - 0.5);
+            }
+            return (quizData[currentLayer] || []).sort(() => Math.random() - 0.5);
+        }
+        
+        function loadNextQuestion() {
+            answered = false;
+            currentIndex++;
+            document.getElementById("answerInput").value = "";
+            document.getElementById("feedback").style.display = "none";
+            document.getElementById("feedbackMultiple").style.display = "none";
+            
+            if (currentIndex < currentQuestions.length) {
+                displayQuestion();
+            } else {
+                currentIndex = 0;
+                currentQuestions = getAllQuestions();
+                displayQuestion();
+            }
+        }
+        
+        function skipQuestion() {
+            loadNextQuestion();
+        }
+        
+        function displayQuestion() {
+            if (currentQuestions.length === 0) return;
+            
+            const q = currentQuestions[currentIndex];
+            document.getElementById("questionText").textContent = q.q;
+            document.getElementById("questionCategory").textContent = q.category ? `[${q.category}]` : "";
+            
+            // ヒント表示
+            let hintText = "";
+            if (q.hint) {
+                hintText += `• ${q.hint}`;
+            }
+            if (q.rfc) {
+                if (hintText) hintText += "\n";
+                hintText += `• ${q.rfc}`;
+            }
+            document.getElementById("hintText").textContent = hintText || "ヒントはありません";
+            
+            if (quizMode === "writing") {
+                document.getElementById("writingMode").style.display = "block";
+                document.getElementById("multipleChoiceMode").style.display = "none";
+                document.getElementById("answerInput").focus();
+            } else {
+                document.getElementById("writingMode").style.display = "none";
+                document.getElementById("multipleChoiceMode").style.display = "block";
+                generateMultipleChoice(q);
+            }
+        }
+        
+        function generateMultipleChoice(q) {
+            // 正解を最初の要素として取得
+            const correctAnswer = q.a[0];
+            
+            // すべてのプロトコル名を集める
+            let allAnswers = new Set();
+            Object.values(quizData).forEach(category => {
+                if (Array.isArray(category)) {
+                    category.forEach(question => {
+                        question.a.forEach(ans => allAnswers.add(ans.toLowerCase()));
+                    });
+                }
+            });
+            
+            // 正解を除いた選択肢を用意
+            allAnswers.delete(correctAnswer.toLowerCase());
+            const wrongAnswers = Array.from(allAnswers);
+            
+            // ランダムに3つの不正解を選ぶ
+            const selectedWrong = [];
+            for (let i = 0; i < 3 && wrongAnswers.length > 0; i++) {
+                const idx = Math.floor(Math.random() * wrongAnswers.length);
+                selectedWrong.push(wrongAnswers[idx]);
+                wrongAnswers.splice(idx, 1);
+            }
+            
+            // 正解と不正解を混ぜる
+            currentChoices = [correctAnswer, ...selectedWrong].sort(() => Math.random() - 0.5);
+            correctAnswerIndex = currentChoices.indexOf(correctAnswer);
+            
+            // 表示
+            currentChoices.forEach((choice, idx) => {
+                document.getElementById(`choice${idx}`).textContent = choice;
+            });
+        }
+        
+        function checkAnswer() {
+            if (answered) return;
+            answered = true;
+            
+            const input = document.getElementById("answerInput").value.toLowerCase().trim();
+            const q = currentQuestions[currentIndex];
+            const isCorrect = q.a.some(ans => ans.toLowerCase() === input);
+            
+            stats.total++;
+            if (isCorrect) stats.correct++;
+            
+            const feedback = document.getElementById("feedback");
+            const feedbackText = document.getElementById("feedbackText");
+            
+            feedback.style.display = "block";
+            feedback.classList.remove("correct", "incorrect");
+            
+            if (isCorrect) {
+                feedback.classList.add("correct");
+                feedbackText.textContent = "✓ 正解です！";
+            } else {
+                feedback.classList.add("incorrect");
+                feedbackText.textContent = `✗ 不正解です。正解: ${q.a.join(" / ")}`;
+            }
+            
+            updateStats();
+        }
+        
+        function checkMultipleChoice(selectedIndex) {
+            if (answered) return;
+            answered = true;
+            
+            const q = currentQuestions[currentIndex];
+            const isCorrect = selectedIndex === correctAnswerIndex;
+            
+            stats.total++;
+            if (isCorrect) stats.correct++;
+            
+            const feedback = document.getElementById("feedbackMultiple");
+            const feedbackText = document.getElementById("feedbackMultipleText");
+            
+            feedback.style.display = "block";
+            
+            // 選択肢のボタンをすべて無効化
+            document.querySelectorAll(".choice-btn").forEach((btn, idx) => {
+                btn.style.pointerEvents = "none";
+                btn.style.opacity = "0.6";
+                if (idx === correctAnswerIndex) {
+                    btn.style.background = "#d4edda";
+                    btn.style.borderColor = "#28a745";
+                    btn.style.color = "#155724";
+                }
+                if (idx === selectedIndex && !isCorrect) {
+                    btn.style.background = "#f8d7da";
+                    btn.style.borderColor = "#721c24";
+                    btn.style.color = "#721c24";
+                }
+            });
+            
+            if (isCorrect) {
+                feedbackText.textContent = "✓ 正解です！";
+                feedbackText.style.color = "#155724";
+            } else {
+                feedbackText.textContent = `✗ 不正解です。正解は「${currentChoices[correctAnswerIndex]}」です。`;
+                feedbackText.style.color = "#721c24";
+            }
+            
+            updateStats();
+        }
+        
+        function updateStats() {
+            document.getElementById("correctCount").textContent = stats.correct;
+            document.getElementById("totalCount").textContent = stats.total;
+            
+            if (stats.total > 0) {
+                const accuracy = Math.round((stats.correct / stats.total) * 100);
+                document.getElementById("accuracy").textContent = `正解率: ${accuracy}%`;
+            }
+        }
+        
+        // 形式切り替えボタンのリスナー
+        document.getElementById("writingModeBtn").addEventListener("click", function() {
+            quizMode = "writing";
+            answered = false;
+            document.getElementById("answerInput").value = "";
+            document.getElementById("feedback").style.display = "none";
+            document.getElementById("feedbackMultiple").style.display = "none";
+            
+            // ボタンのスタイル更新
+            document.getElementById("writingModeBtn").style.background = "#667eea";
+            document.getElementById("writingModeBtn").style.color = "white";
+            document.getElementById("multipleChoiceModeBtn").style.background = "white";
+            document.getElementById("multipleChoiceModeBtn").style.color = "#667eea";
+            
+            displayQuestion();
+        });
+        
+        document.getElementById("multipleChoiceModeBtn").addEventListener("click", function() {
+            quizMode = "multipleChoice";
+            answered = false;
+            document.getElementById("answerInput").value = "";
+            document.getElementById("feedback").style.display = "none";
+            document.getElementById("feedbackMultiple").style.display = "none";
+            
+            // ボタンのスタイル更新
+            document.getElementById("writingModeBtn").style.background = "white";
+            document.getElementById("writingModeBtn").style.color = "#667eea";
+            document.getElementById("multipleChoiceModeBtn").style.background = "#667eea";
+            document.getElementById("multipleChoiceModeBtn").style.color = "white";
+            
+            displayQuestion();
+        });
+        
+        document.getElementById("layerSelect").addEventListener("change", function(e) {
+            currentLayer = e.target.value;
+            currentIndex = 0;
+            stats = { correct: 0, total: 0 };
+            answered = false;
+            currentQuestions = getAllQuestions();
+            document.getElementById("answerInput").value = "";
+            document.getElementById("feedback").style.display = "none";
+            document.getElementById("feedbackMultiple").style.display = "none";
+            document.getElementById("accuracy").textContent = "";
+            updateStats();
+            displayQuestion();
+        });
+        
+        document.getElementById("submitBtn").addEventListener("click", checkAnswer);
+        document.getElementById("answerInput").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") checkAnswer();
+        });
+        
+        currentQuestions = getAllQuestions();
+        displayQuestion();
+    </script>
+</body>
+</html>
