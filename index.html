@@ -346,6 +346,12 @@
                 <button onclick="loadNextQuestion()">次の問題</button>
                 <button onclick="skipQuestion()">スキップ</button>
             </div>
+            
+            <!-- 4択モード用：選択肢の詳細情報表示 -->
+            <div id="choicesDetail" style="display: none; margin-top: 1.5rem; padding: 1rem; background: #f9f9f9; border: 1px solid #eee; border-radius: 8px;">
+                <h4 style="font-size: 0.95rem; font-weight: 600; margin: 0 0 1rem; color: #333;">各選択肢について</h4>
+                <div id="choicesDetailContent" style="display: grid; gap: 1rem;"></div>
+            </div>
         </div>
         
         <div class="stats">
@@ -367,35 +373,33 @@
     <script>
         const quizData = {
             physical: [
-                { q: "複数の物理回線を束ねる制御プロトコルで、IEEE 802.3adで定義されている。", hint: "リンク集約", rfc: "IEEE 802.3ad", a: ["lacp"], category: "物理層" },
-                { q: "複数の物理ポートを1つのグループにして、冗長性と帯域を確保する。", hint: "802.3ad", a: ["リンクアグリゲーション", "lacp"], category: "物理層" }
+                { q: "[Standard] 複数の物理回線を束ねる制御プロトコル。IEEE 802.3adで定義される。", hint: "Link Aggregation Control Protocol", rfc: "IEEE 802.3ad", a: ["lacp"], category: "物理層", level: "Standard" },
+                { q: "[Standard] 複数の物理ポートを1つのグループにして冗長性と帯域を確保。スイッチ間で自動ネゴシエーション。", hint: "リンク集約", rfc: "IEEE 802.3ad", a: ["リンクアグリゲーション", "lacp"], category: "物理層", level: "Standard" }
             ],
             datalink: [
-                { q: "IP アドレスからMACアドレス（物理アドレス）を解決するプロトコル。", hint: "Address Resolution", rfc: "RFC 826", a: ["arp"], category: "データリンク層" },
-                { q: "自分自身のIPアドレスを問い合わせるARP。IP重複検知やVRRP切り替わり周知に使う。", hint: "Gratuitous", rfc: "RFC 5227", a: ["garp"], category: "データリンク層" },
-                { q: "複数のスイッチで構成したネットワークのループを検出・防止するプロトコル。", hint: "ツリー構造", rfc: "IEEE 802.1D", a: ["stp"], category: "データリンク層" },
-                { q: "物理的な冗長構成でループ検出と経路冗長を行うレイヤー2プロトコル。", hint: "Spanning", a: ["スパニングツリー"], category: "データリンク層" },
-                { q: "VLANの設定情報をCisco スイッチ間で自動同期するプロトコル。意図しない全VLAN消失に注意。", hint: "VLAN Trunking", rfc: "Cisco独自", a: ["vtp"], category: "データリンク層" },
-                { q: "Cisco製スイッチ間でポートをトランクにするか自動交渉するプロトコル。", hint: "Dynamic Trunking", a: ["dtp"], category: "データリンク層" },
-                { q: "メーカーを問わず隣接する機器の情報を相互に通知・検出するプロトコル。", hint: "Link Layer Discovery", rfc: "IEEE 802.1AB", a: ["lldp"], category: "データリンク層" },
-                { q: "Cisco製機器同士で隣接情報を交換する独自プロトコル。", hint: "Cisco Discovery", a: ["cdp"], category: "データリンク層" }
+                { q: "[Standard] IPアドレスからMACアドレス（物理アドレス）を解決するプロトコル。ネットワーク通信時にデバイスの物理アドレスを特定。", hint: "Address Resolution Protocol", rfc: "RFC 826", a: ["arp"], category: "データリンク層", level: "Standard" },
+                { q: "[Standard] 自分自身のIPアドレスを問い合わせるARP。IP重複検知やVRRP切り替わり周知に使用。", hint: "Gratuitous ARP", rfc: "RFC 5227", a: ["garp"], category: "データリンク層", level: "Standard" },
+                { q: "[Legacy] VLANの設定情報をCiscoスイッチ間で自動同期するプロトコル。設定ミスで全VLANが消える事故が発生。", hint: "VLAN Trunking Protocol", rfc: "Cisco独自", a: ["vtp"], category: "データリンク層", level: "Legacy" },
+                { q: "[Legacy] Ciscoスイッチ間でポートをトランクにするか自動交渉するプロトコル。意図しないトランク化事故の元。", hint: "Dynamic Trunking Protocol", a: ["dtp"], category: "データリンク層", level: "Legacy" },
+                { q: "[Standard] メーカーを問わず隣接する機器の情報を相互に通知・検出するプロトコル。LLDPのCisco版はCDP。", hint: "Link Layer Discovery Protocol", rfc: "IEEE 802.1AB", a: ["lldp"], category: "データリンク層", level: "Standard" },
+                { q: "[Standard] Cisco製機器同士で隣接情報を交換する独自プロトコル。LLDPの元ネタ。", hint: "Cisco Discovery Protocol", a: ["cdp"], category: "データリンク層", level: "Standard" },
+                { q: "[Legacy] ループ構成を回避し、経路冗長を行うレイヤー2プロトコル。スパツリとも呼ばれる。", hint: "Spanning Tree Protocol", rfc: "IEEE 802.1D", a: ["stp"], category: "データリンク層", level: "Legacy" }
             ],
             network: [
-                { q: "IP アドレス、サブネットマスク、GWなどをネットワーク内の端末に自動的に割り当てる。", hint: "Dynamic Host Configuration", rfc: "RFC 2131", a: ["dhcp"], category: "ネットワーク層" },
-                { q: "IP アドレス割り当ての際に DHCP サーバーとクライアント間で中継を行う。", hint: "DHCP Relay Agent", a: ["dhcpリレーエージェント"], category: "ネットワーク層" },
-                { q: "ドメイン名とIPアドレスを紐付ける名前解決システム。", hint: "Domain Name", rfc: "RFC 1035", a: ["dns"], category: "ネットワーク層" },
-                { q: "Ping や Traceroute で使用される、通信状態確認・エラー通知用プロトコル。", hint: "Internet Control Message", rfc: "RFC 792", a: ["icmp"], category: "ネットワーク層" },
-                { q: "IPアドレスからMACアドレスを解決するプロトコル。", hint: "Address Resolution", rfc: "RFC 826", a: ["arp"], category: "ネットワーク層" },
-                { q: "インターネット上のデータを宛先に届けるための基盤プロトコル。", hint: "Internet", rfc: "RFC 791", a: ["ip"], category: "ネットワーク層" },
-                { q: "IPパケット単位で暗号化・認証を行う VPN の基盤技術。", hint: "Security Architecture", rfc: "RFC 4301", a: ["ipsec"], category: "ネットワーク層" },
-                { q: "マルチキャストグループへの参加、離脱を管理するプロトコル。", hint: "Internet Group Management", rfc: "RFC 3376", a: ["igmp"], category: "ネットワーク層" }
+                { q: "[Standard] IPアドレス、サブネットマスク、デフォルトゲートウェイなどを、ネットワーク内の端末に自動的に割り当てるプロトコル。DHCP サーバーが一元管理。", hint: "Dynamic Host Configuration Protocol", rfc: "RFC 2131", a: ["dhcp"], category: "ネットワーク層", level: "Standard", port: "UDP 67/68" },
+                { q: "[Maniac] DHCP サーバーとクライアント間の中継を行うエージェント。異なるサブネット間での DHCP 応答をリレー。", hint: "DHCP Relay Agent", a: ["dhcpリレーエージェント", "dhcp relay"], category: "ネットワーク層", level: "Maniac" },
+                { q: "[Standard] ドメイン名とIPアドレスを紐付ける名前解決システム。インターネット通信の基盤となる。", hint: "Domain Name System", rfc: "RFC 1035", a: ["dns"], category: "ネットワーク層", level: "Standard", port: "UDP/TCP 53" },
+                { q: "[Standard] Ping や Traceroute で使用される、通信状態確認・エラー通知用プロトコル。接続診断の重要なツール。", hint: "Internet Control Message Protocol", rfc: "RFC 792", a: ["icmp"], category: "ネットワーク層", level: "Standard" },
+                { q: "[Standard] インターネット上でデータを宛先に届けるための基盤プロトコル。あらゆる IP 通信の根幹。", hint: "Internet Protocol", rfc: "RFC 791", a: ["ip"], category: "ネットワーク層", level: "Standard" },
+                { q: "[Standard] IPパケット単位で暗号化・認証を行う VPN の基盤技術。IKE、ESP、AH などで構成。", hint: "Security Architecture for IP", rfc: "RFC 4301", a: ["ipsec"], category: "ネットワーク層", level: "Standard" },
+                { q: "[Standard] マルチキャストグループへの参加、離脱を管理するプロトコル。マルチキャスト通信の制御に使用。", hint: "Internet Group Management Protocol", rfc: "RFC 3376", a: ["igmp"], category: "ネットワーク層", level: "Standard" }
             ],
             transport: [
-                { q: "確認応答を行いながら、データの到達と順序を保証する信頼性重視のプロトコル。", hint: "Transmission Control", rfc: "RFC 9293", a: ["tcp"], category: "トランスポート層" },
-                { q: "細かい確認手順を省き、速度とリアルタイム性を重視する通信プロトコル。", hint: "User Datagram", rfc: "RFC 768", a: ["udp"], category: "トランスポート層" },
-                { q: "Google発のUDPベース Webプロトコル。3WAYハンドシェイクを短縮して低遅延を実現。", hint: "Quick UDP Internet", rfc: "RFC 9000", a: ["quic"], category: "トランスポート層" },
-                { q: "ネットワーク経由でコマンド操作を暗号化して安全に行うプロトコル。", hint: "Secure Shell", rfc: "RFC 4253", a: ["ssh"], category: "トランスポート層" },
-                { q: "IP電話における発着信・切断などの呼制御を行うプロトコル。", hint: "Session Initiation", rfc: "RFC 3261", a: ["sip"], category: "トランスポート層" }
+                { q: "[Standard] 確認応答を行いながら、データの到達と順序を保証する信頼性重視のプロトコル。遅延を許容し信頼性を重視する通信向け。", hint: "Transmission Control Protocol", rfc: "RFC 9293", a: ["tcp"], category: "トランスポート層", level: "Standard" },
+                { q: "[Standard] 細かい確認手順を省き、速度とリアルタイム性を重視する通信プロトコル。遅延を最小化したい用途向け。", hint: "User Datagram Protocol", rfc: "RFC 768", a: ["udp"], category: "トランスポート層", level: "Standard" },
+                { q: "[Standard] Google発のUDPベース Webプロトコル。3WAYハンドシェイクを短縮して低遅延を実現。HTTP/3 の基盤。", hint: "Quick UDP Internet Connections", rfc: "RFC 9000", a: ["quic"], category: "トランスポート層", level: "Standard", port: "UDP 443" },
+                { q: "[Standard] ネットワーク経由でコマンド操作を暗号化して安全に行うプロトコル。サーバー管理の標準ツール。", hint: "Secure Shell", rfc: "RFC 4253", a: ["ssh"], category: "トランスポート層", level: "Standard", port: "TCP 22" },
+                { q: "[Standard] IP電話における発着信・切断などの呼制御を行うプロトコル。VoIP システムの制御を担当。", hint: "Session Initiation Protocol", rfc: "RFC 3261", a: ["sip"], category: "トランスポート層", level: "Standard", port: "TCP/UDP 5060" }
             ],
             application: [
                 { q: "IPアドレス、サブネットマスク、GWなどを自動的に割り当てる。標準ポートは UDP 67/68。", hint: "Dynamic Host", rfc: "RFC 2131", a: ["dhcp"], category: "アプリケーション層" },
@@ -495,6 +499,7 @@
             document.getElementById("answerInput").value = "";
             document.getElementById("feedback").style.display = "none";
             document.getElementById("feedbackMultiple").style.display = "none";
+            document.getElementById("choicesDetail").style.display = "none";
             
             // 4択ボタンをリセット
             document.querySelectorAll(".choice-btn").forEach(btn => {
@@ -650,7 +655,74 @@
                 feedbackText.style.color = "#721c24";
             }
             
+            // 選択肢の詳細情報を表示
+            displayChoicesDetail(q);
+            
+            // ページをスクロール（クイズカード上部が見えるように）
+            setTimeout(() => {
+                const quizCard = document.querySelector(".quiz-card");
+                if (quizCard) {
+                    quizCard.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+            }, 100);
+            
             updateStats();
+        }
+        
+        function displayChoicesDetail(q) {
+            const detailContainer = document.getElementById("choicesDetail");
+            const detailContent = document.getElementById("choicesDetailContent");
+            
+            let html = "";
+            currentChoices.forEach((choice, idx) => {
+                // 対応するプロトコルデータを探す
+                let protocolData = null;
+                Object.values(quizData).forEach(category => {
+                    if (Array.isArray(category) && !protocolData) {
+                        category.forEach(question => {
+                            if (question.a.some(a => a.toLowerCase() === choice.toLowerCase())) {
+                                protocolData = question;
+                            }
+                        });
+                    }
+                });
+                
+                const isCorrect = idx === correctAnswerIndex;
+                const bgColor = isCorrect ? "#e8f5e9" : "#f5f5f5";
+                const borderColor = isCorrect ? "#4caf50" : "#ddd";
+                const marker = isCorrect ? "✓" : "•";
+                
+                html += `
+                    <div style="padding: 0.75rem; background: ${bgColor}; border: 1px solid ${borderColor}; border-left: 3px solid ${borderColor}; border-radius: 4px;">
+                        <div style="font-weight: 600; margin-bottom: 0.5rem; color: #333;">
+                            <span style="color: ${isCorrect ? '#4caf50' : '#999'}; margin-right: 8px;">${marker}</span>${choice}
+                        </div>
+                `;
+                
+                if (protocolData) {
+                    html += `<div style="font-size: 0.85rem; color: #666; line-height: 1.6;">`;
+                    if (protocolData.hint) {
+                        html += `<div style="margin-bottom: 0.25rem;"><strong>正式名称:</strong> ${protocolData.hint}</div>`;
+                    }
+                    if (protocolData.rfc) {
+                        html += `<div style="margin-bottom: 0.25rem;"><strong>規格:</strong> ${protocolData.rfc}</div>`;
+                    }
+                    if (protocolData.port) {
+                        html += `<div style="margin-bottom: 0.25rem;"><strong>ポート:</strong> ${protocolData.port}</div>`;
+                    }
+                    if (protocolData.level) {
+                        html += `<div style="margin-bottom: 0.25rem;"><strong>レベル:</strong> ${protocolData.level}</div>`;
+                    }
+                    html += `</div>`;
+                } else {
+                    html += `<div style="font-size: 0.85rem; color: #999;">情報なし</div>`;
+                }
+                
+                html += `</div>`;
+            });
+            
+            detailContent.innerHTML = html;
+            detailContainer.style.display = "block";
         }
         
         function updateStats() {
@@ -670,6 +742,7 @@
             document.getElementById("answerInput").value = "";
             document.getElementById("feedback").style.display = "none";
             document.getElementById("feedbackMultiple").style.display = "none";
+            document.getElementById("choicesDetail").style.display = "none";
             
             // 4択ボタンをリセット
             document.querySelectorAll(".choice-btn").forEach(btn => {
@@ -695,6 +768,7 @@
             document.getElementById("answerInput").value = "";
             document.getElementById("feedback").style.display = "none";
             document.getElementById("feedbackMultiple").style.display = "none";
+            document.getElementById("choicesDetail").style.display = "none";
             
             // 4択ボタンをリセット
             document.querySelectorAll(".choice-btn").forEach(btn => {
@@ -723,6 +797,7 @@
             document.getElementById("answerInput").value = "";
             document.getElementById("feedback").style.display = "none";
             document.getElementById("feedbackMultiple").style.display = "none";
+            document.getElementById("choicesDetail").style.display = "none";
             document.getElementById("accuracy").textContent = "";
             
             // 4択ボタンをリセット
