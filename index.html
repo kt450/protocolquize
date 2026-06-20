@@ -496,6 +496,15 @@
             document.getElementById("feedback").style.display = "none";
             document.getElementById("feedbackMultiple").style.display = "none";
             
+            // 4択ボタンをリセット
+            document.querySelectorAll(".choice-btn").forEach(btn => {
+                btn.style.pointerEvents = "auto";
+                btn.style.opacity = "1";
+                btn.style.background = "white";
+                btn.style.borderColor = "#ddd";
+                btn.style.color = "#333";
+            });
+            
             if (currentIndex < currentQuestions.length) {
                 displayQuestion();
             } else {
@@ -662,6 +671,15 @@
             document.getElementById("feedback").style.display = "none";
             document.getElementById("feedbackMultiple").style.display = "none";
             
+            // 4択ボタンをリセット
+            document.querySelectorAll(".choice-btn").forEach(btn => {
+                btn.style.pointerEvents = "auto";
+                btn.style.opacity = "1";
+                btn.style.background = "white";
+                btn.style.borderColor = "#ddd";
+                btn.style.color = "#333";
+            });
+            
             // ボタンのスタイル更新
             document.getElementById("writingModeBtn").style.background = "#667eea";
             document.getElementById("writingModeBtn").style.color = "white";
@@ -677,6 +695,15 @@
             document.getElementById("answerInput").value = "";
             document.getElementById("feedback").style.display = "none";
             document.getElementById("feedbackMultiple").style.display = "none";
+            
+            // 4択ボタンをリセット
+            document.querySelectorAll(".choice-btn").forEach(btn => {
+                btn.style.pointerEvents = "auto";
+                btn.style.opacity = "1";
+                btn.style.background = "white";
+                btn.style.borderColor = "#ddd";
+                btn.style.color = "#333";
+            });
             
             // ボタンのスタイル更新
             document.getElementById("writingModeBtn").style.background = "white";
@@ -697,6 +724,16 @@
             document.getElementById("feedback").style.display = "none";
             document.getElementById("feedbackMultiple").style.display = "none";
             document.getElementById("accuracy").textContent = "";
+            
+            // 4択ボタンをリセット
+            document.querySelectorAll(".choice-btn").forEach(btn => {
+                btn.style.pointerEvents = "auto";
+                btn.style.opacity = "1";
+                btn.style.background = "white";
+                btn.style.borderColor = "#ddd";
+                btn.style.color = "#333";
+            });
+            
             updateStats();
             displayQuestion();
         });
